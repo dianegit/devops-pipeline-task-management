@@ -12,22 +12,19 @@ jobs:
   move_to_review:
     runs-on: ubuntu-latest
     steps:
-      - name: Move linked issue to In Review
+      - name: Move linked issue(s) to In Review
         run: |
-          # Extract linked issue numbers from PR body
           issues=$(echo "${{ github.event.pull_request.body }}" | grep -oE "#[0-9]+" | tr -d "#")
-          
           for issue in $issues; do
             issue_id=$(gh api graphql -f query='
               query($n:Int!) {
-                repository(owner:"'${{ github.repository_owner }}'", name:"'${{ github.event.repository.name }}'") {
+                repository(owner:"dianegit", name:"'${{ github.event.repository.name }}'") {
                   issue(number:$n) { node_id }
                 }
               }' -f n=$issue --jq '.data.repository.issue.node_id')
-
             gh project item-move \
-              --owner YOUR_ORG_OR_USERNAME \
-              --project-number YOUR_PROJECT_NUMBER \
+              --owner dianegit \
+              --project-number 3 \
               --item-id $issue_id \
               --column-id COLUMN_ID_IN_REVIEW
           done
